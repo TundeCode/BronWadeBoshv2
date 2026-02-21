@@ -98,12 +98,31 @@ function normalizeListing(base: VehicleListing, input: Partial<VehicleListing>):
   };
 }
 
-export async function parseListing(input: Partial<VehicleListing> & { sourceUrl?: string; rawText?: string }) {
+async function fetchListingSnapshot(sourceUrl: string): Promise<string> {
+  try {
+    const res = await fetch(sourceUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+      }
+    });
+    if (!res.ok) return "";
+    const html = await res.text();
+    return html.replace(/\s+/g, " ").slice(0, 12000);
+  } catch {
+    return "";
+  }
+}
+
+export async function parseListing(input: { sourceUrl: string; rawText?: string }) {
   const fallback = mockParseListing(input);
+  const listingPageText = input.rawText || (await fetchListingSnapshot(input.sourceUrl));
   const text = await callOpenAi(
-    `Extract vehicle listing fields as JSON with keys: title, year, make, model, trim, mileage, price, location, vin, sellerType, conditionNotes. Input: ${JSON.stringify(
-      input
-    )}. sellerType must be one of dealer|private|marketplace.`
+    `Extract vehicle listing fields as JSON with keys: title, year, make, model, trim, mileage, price, location, vin, sellerType, conditionNotes.
+sourceUrl: ${input.sourceUrl}
+listingPageText: ${listingPageText || "N/A"}
+sellerType must be one of dealer|private|marketplace.
+If a field is missing, infer conservatively.`
   );
   if (!text) return fallback;
 

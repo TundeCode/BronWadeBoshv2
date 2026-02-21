@@ -3,18 +3,7 @@ import { z } from "zod";
 import { parseListing } from "@/lib/ai/provider";
 
 const ParseInput = z.object({
-  sourceUrl: z.string().optional(),
-  title: z.string().optional(),
-  year: z.coerce.number().optional(),
-  make: z.string().optional(),
-  model: z.string().optional(),
-  trim: z.string().optional(),
-  mileage: z.coerce.number().optional(),
-  price: z.coerce.number().optional(),
-  location: z.string().optional(),
-  vin: z.string().optional(),
-  sellerType: z.enum(["dealer", "private", "marketplace"]).optional(),
-  conditionNotes: z.string().optional(),
+  sourceUrl: z.string().url(),
   rawText: z.string().optional()
 });
 

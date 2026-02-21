@@ -3,7 +3,7 @@
 AI-assisted web MVP for evaluating used-car listings and helping buyers make decisions.
 
 ## Features in this build
-- Listing intake form (URL + manual fields)
+- Listing intake form (URL only)
 - AI parse endpoint (OpenAI-backed with fallback)
 - AI fair-deal scoring endpoint (OpenAI-backed with fallback)
 - AI comparable ranking endpoint (OpenAI-backed with fallback)

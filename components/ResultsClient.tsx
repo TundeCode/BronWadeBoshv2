@@ -32,6 +32,7 @@ export function ResultsClient({ initialInput }: Props) {
   const [loading, setLoading] = useState(true);
   const [authMessage, setAuthMessage] = useState("");
   const [analysisStored, setAnalysisStored] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
 
   useEffect(() => {
     async function loadMe() {
@@ -72,11 +73,19 @@ export function ResultsClient({ initialInput }: Props) {
   useEffect(() => {
     async function runAnalysis() {
       setLoading(true);
+      setAnalysisError("");
       const parseRes = await fetch("/api/ai/parse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(initialInput)
       });
+      if (!parseRes.ok) {
+        setListing(null);
+        setLoading(false);
+        setAnalysisError("Could not parse the listing URL. Please check the link and try again.");
+        return;
+      }
+
       const parsed = (await parseRes.json()) as VehicleListing;
       setListing(parsed);
 
@@ -141,7 +150,7 @@ export function ResultsClient({ initialInput }: Props) {
     void storeHistory();
   }, [user, listing, dealScore, risk, analysisStored]);
 
-  const canSave = !!listing && !!user;
+  const canSave = !!listing;
 
   const saveCurrent = async () => {
     setAuthMessage("");
@@ -188,7 +197,7 @@ export function ResultsClient({ initialInput }: Props) {
   }, [dealScore]);
 
   if (loading) return <p className="text-sm text-slate-700">Running AI analysis...</p>;
-  if (!listing) return <p className="text-sm text-rose-700">Could not parse listing details.</p>;
+  if (!listing) return <p className="text-sm text-rose-700">{analysisError || "Could not parse listing details."}</p>;
 
   return (
     <div className="space-y-6">
