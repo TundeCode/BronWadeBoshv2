@@ -5,10 +5,18 @@ Use this file to track prompts given by the user.
 ## Past Prompts
 
 - 2026-02-21: "in prompts.md i want you to keep track of the prompts that i gave you in the prompts.md file"
+- 2026-02-21: "Update the current prompts have a section with past prompts"
+- 2026-02-21: "update the prompts.md with the idea of using ai"
 
 
 # Current Prompt
-I want to make an app that takes in a car listing from maybe a dealership,facebook marketplace, or craiglist or even ebay. Add features that will make it easy for somebody to buy the car. Maybe give them comparison of other similiar cars with the same target audience or if they are getting a good deal or not. 
+Start building the web app MVP using the AI features:
+- AI listing parser
+- AI fair-deal score
+- AI comparable matching
+- AI risk/scam detection
+- AI negotiation/Q&A support
+Include an option to add an API key in environment config for real model calls.
 
 ## Site Features
 - Listing intake: paste a URL (dealership, Facebook Marketplace, Craigslist, eBay) or manually enter listing details.
@@ -24,12 +32,21 @@ I want to make an app that takes in a car listing from maybe a dealership,facebo
 - Negotiation assistant: generate talking points using comps and listing weaknesses.
 - Trust and risk signals: identify scams, incomplete info, and suspicious pricing patterns.
 
+## AI Features
+- AI listing parser: convert messy listing text/URLs into structured fields.
+- AI fair-deal scoring: estimate whether price is a good deal based on comps and context.
+- AI comparable matching: find and rank the most relevant similar vehicles.
+- AI risk detector: flag potential scams, missing details, and suspicious patterns.
+- AI negotiation copilot: generate offer strategy, talking points, and seller questions.
+- AI Q&A assistant: answer buyer questions using listing + comp + risk data.
+
 ## Next Prompt (Build the App)
-Build the first version of this app as a web MVP. Use a modern stack (Next.js + TypeScript + Tailwind). Start with:
+Build the first version of this app as a web MVP with AI features. Use a modern stack (Next.js + TypeScript + Tailwind). Start with:
 1. Project setup and clean folder structure.
 2. A homepage with a listing URL input and manual listing form.
-3. A results page that shows parsed listing data, fair price score, and comparable cars (use mocked data first).
+3. A results page that shows parsed listing data, AI fair price score, and AI-ranked comparable cars (use mocked data first).
 4. A reusable comparison table component for saved cars.
 5. Basic state management and local persistence for saved listings.
-6. Clear README instructions for local setup and run.
+6. AI endpoints or service stubs for parse, score, compare, and risk-check flows.
+7. Clear README instructions for local setup and run.
 After scaffolding, implement the UI with clean, responsive design and realistic sample data.

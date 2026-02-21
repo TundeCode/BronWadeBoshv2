@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-start: #fff7ed;
+  --bg-end: #e0f2fe;
+  --text: #0f172a;
+}
+
+html,
+body {
+  color: var(--text);
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at top left, var(--bg-start), var(--bg-end));
+}
+
+input,
+textarea,
+select {
+  @apply rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm outline-none transition;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  @apply border-sky-400 ring-2 ring-sky-200;
+}
+
+button {
+  @apply transition;
+}
