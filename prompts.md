@@ -9,6 +9,7 @@ Use this file to track prompts given by the user.
 - 2026-02-21: "update the prompts.md with the idea of using ai"
 - 2026-02-21: "start building the app do the next prompt using the ai features and make updates to the ai features if you need my api key i can add it to the file and i can answer any questions you have"
 - 2026-02-21: "i dont to have the user enter information about the car it will just be from the listing"
+- 2026-02-21: "make sure everything up to date and i changed the api form openai to google gemni"
 
 
 # Current Prompt
@@ -16,6 +17,7 @@ Use URL-only listing intake:
 - Users should only paste a listing URL.
 - Car details should be extracted from the listing automatically.
 - Remove manual car data input from the user flow.
+- AI provider should use Google Gemini environment variables and API integration.
 
 ## Site Features
 - Listing intake: paste a URL (dealership, Facebook Marketplace, Craigslist, eBay) or manually enter listing details.
