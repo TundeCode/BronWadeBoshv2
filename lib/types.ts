@@ -52,3 +52,24 @@ export type NegotiationPlan = {
 export type QaResponse = {
   answer: string;
 };
+
+export type UserPublic = {
+  id: string;
+  email: string;
+};
+
+export type SavedListing = {
+  id: string;
+  userId: string;
+  listing: VehicleListing;
+  savedAt: string;
+};
+
+export type AnalysisHistoryEntry = {
+  id: string;
+  userId: string;
+  createdAt: string;
+  listing: VehicleListing;
+  dealScore: DealScore | null;
+  risk: RiskAssessment | null;
+};

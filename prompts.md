@@ -7,16 +7,13 @@ Use this file to track prompts given by the user.
 - 2026-02-21: "in prompts.md i want you to keep track of the prompts that i gave you in the prompts.md file"
 - 2026-02-21: "Update the current prompts have a section with past prompts"
 - 2026-02-21: "update the prompts.md with the idea of using ai"
+- 2026-02-21: "start building the app do the next prompt using the ai features and make updates to the ai features if you need my api key i can add it to the file and i can answer any questions you have"
 
 
 # Current Prompt
-Start building the web app MVP using the AI features:
-- AI listing parser
-- AI fair-deal score
-- AI comparable matching
-- AI risk/scam detection
-- AI negotiation/Q&A support
-Include an option to add an API key in environment config for real model calls.
+Add option 1 and 3:
+- Use real OpenAI-backed logic for parse, score, compare, risk, negotiate, and Q&A.
+- Add auth and user accounts so each user has their own saved garage and analysis history.
 
 ## Site Features
 - Listing intake: paste a URL (dealership, Facebook Marketplace, Craigslist, eBay) or manually enter listing details.

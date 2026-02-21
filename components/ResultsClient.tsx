@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  AnalysisHistoryEntry,
   ComparableCar,
   DealScore,
   NegotiationPlan,
   QaResponse,
   RiskAssessment,
+  UserPublic,
   VehicleListing
 } from "@/lib/types";
 import { ComparisonTable } from "@/components/ComparisonTable";
@@ -16,6 +18,7 @@ type Props = {
 };
 
 export function ResultsClient({ initialInput }: Props) {
+  const [user, setUser] = useState<UserPublic | null>(null);
   const [listing, setListing] = useState<VehicleListing | null>(null);
   const [comparables, setComparables] = useState<ComparableCar[]>([]);
   const [dealScore, setDealScore] = useState<DealScore | null>(null);
@@ -25,14 +28,46 @@ export function ResultsClient({ initialInput }: Props) {
   const [qaAnswer, setQaAnswer] = useState<QaResponse | null>(null);
   const [qaLoading, setQaLoading] = useState(false);
   const [saved, setSaved] = useState<VehicleListing[]>([]);
+  const [history, setHistory] = useState<AnalysisHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authMessage, setAuthMessage] = useState("");
+  const [analysisStored, setAnalysisStored] = useState(false);
 
   useEffect(() => {
-    const savedRaw = localStorage.getItem("savedListings");
-    if (savedRaw) {
-      setSaved(JSON.parse(savedRaw));
+    async function loadMe() {
+      const res = await fetch("/api/auth/me");
+      const data = (await res.json()) as { user: UserPublic | null };
+      setUser(data.user);
     }
+    void loadMe();
   }, []);
+
+  useEffect(() => {
+    async function loadUserData() {
+      if (!user) {
+        setSaved([]);
+        setHistory([]);
+        return;
+      }
+
+      const [garageRes, historyRes] = await Promise.all([
+        fetch("/api/user/garage"),
+        fetch("/api/user/history")
+      ]);
+
+      if (garageRes.ok) {
+        const garageData = (await garageRes.json()) as { items: { listing: VehicleListing }[] };
+        setSaved(garageData.items.map((item) => item.listing));
+      }
+
+      if (historyRes.ok) {
+        const historyData = (await historyRes.json()) as { entries: AnalysisHistoryEntry[] };
+        setHistory(historyData.entries);
+      }
+    }
+
+    void loadUserData();
+  }, [user]);
 
   useEffect(() => {
     async function runAnalysis() {
@@ -68,23 +103,69 @@ export function ResultsClient({ initialInput }: Props) {
         })
       ]);
 
-      setComparables((await compRes.json()).comparables);
-      setDealScore((await scoreRes.json()).score);
-      setRisk((await riskRes.json()).risk);
-      setNegotiation((await negotiationRes.json()).plan);
+      const compData = (await compRes.json()) as { comparables: ComparableCar[] };
+      const scoreData = (await scoreRes.json()) as { score: DealScore };
+      const riskData = (await riskRes.json()) as { risk: RiskAssessment };
+      const negotiationData = (await negotiationRes.json()) as { plan: NegotiationPlan };
+
+      setComparables(compData.comparables);
+      setDealScore(scoreData.score);
+      setRisk(riskData.risk);
+      setNegotiation(negotiationData.plan);
+
+      setAnalysisStored(false);
       setLoading(false);
     }
 
     void runAnalysis();
   }, [initialInput]);
 
-  const canSave = !!listing;
+  useEffect(() => {
+    async function storeHistory() {
+      if (!user || !listing || !dealScore || !risk || analysisStored) return;
+      const res = await fetch("/api/user/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listing, dealScore, risk })
+      });
+      if (res.ok) {
+        setAnalysisStored(true);
+        const historyRes = await fetch("/api/user/history");
+        if (historyRes.ok) {
+          const historyData = (await historyRes.json()) as { entries: AnalysisHistoryEntry[] };
+          setHistory(historyData.entries);
+        }
+      }
+    }
 
-  const saveCurrent = () => {
+    void storeHistory();
+  }, [user, listing, dealScore, risk, analysisStored]);
+
+  const canSave = !!listing && !!user;
+
+  const saveCurrent = async () => {
+    setAuthMessage("");
     if (!listing) return;
-    const next = [listing, ...saved.filter((s) => s.id !== listing.id)].slice(0, 8);
-    setSaved(next);
-    localStorage.setItem("savedListings", JSON.stringify(next));
+    if (!user) {
+      setAuthMessage("Sign in on the home page to save listings to your account.");
+      return;
+    }
+
+    const res = await fetch("/api/user/garage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listing })
+    });
+
+    if (!res.ok) {
+      setAuthMessage("Could not save listing.");
+      return;
+    }
+
+    const garageRes = await fetch("/api/user/garage");
+    const garageData = (await garageRes.json()) as { items: { listing: VehicleListing }[] };
+    setSaved(garageData.items.map((item) => item.listing));
+    setAuthMessage("Saved to your garage.");
   };
 
   const askQuestion = async () => {
@@ -124,6 +205,7 @@ export function ResultsClient({ initialInput }: Props) {
           </button>
         </div>
         <p className="mt-2 text-sm text-slate-600">{listing.location} • {listing.mileage.toLocaleString()} mi • ${listing.price.toLocaleString()}</p>
+        {authMessage ? <p className="mt-2 text-sm text-slate-700">{authMessage}</p> : null}
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
@@ -207,6 +289,24 @@ export function ResultsClient({ initialInput }: Props) {
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Saved Compare Garage</h3>
         <ComparisonTable items={saved} />
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Recent Analysis History</h3>
+        {!user ? (
+          <p className="text-sm text-slate-600">Sign in to store and view your analysis history.</p>
+        ) : history.length === 0 ? (
+          <p className="text-sm text-slate-600">No analysis history yet.</p>
+        ) : (
+          <ul className="space-y-2 text-sm text-slate-700">
+            {history.slice(0, 6).map((entry) => (
+              <li key={entry.id} className="rounded-lg border border-slate-200 p-3">
+                <p className="font-medium">{entry.listing.year} {entry.listing.make} {entry.listing.model} - ${entry.listing.price.toLocaleString()}</p>
+                <p className="text-slate-600">{new Date(entry.createdAt).toLocaleString()}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

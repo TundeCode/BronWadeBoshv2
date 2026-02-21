@@ -4,14 +4,16 @@ AI-assisted web MVP for evaluating used-car listings and helping buyers make dec
 
 ## Features in this build
 - Listing intake form (URL + manual fields)
-- AI parse endpoint stub
-- AI fair-deal scoring endpoint stub
-- AI comparable ranking endpoint stub
-- AI risk-check endpoint (mock by default, optional OpenAI fallback)
-- AI negotiation-plan endpoint stub
-- AI listing Q&A endpoint stub
+- AI parse endpoint (OpenAI-backed with fallback)
+- AI fair-deal scoring endpoint (OpenAI-backed with fallback)
+- AI comparable ranking endpoint (OpenAI-backed with fallback)
+- AI risk-check endpoint (OpenAI-backed with fallback)
+- AI negotiation-plan endpoint (OpenAI-backed with fallback)
+- AI listing Q&A endpoint (OpenAI-backed with fallback)
 - Results dashboard with score, risk panel, and comparable cards
-- Saved compare garage persisted in browser `localStorage`
+- Email/password auth with secure cookie sessions
+- User accounts with server-side saved compare garage
+- User-specific analysis history
 
 ## Stack
 - Next.js 14 (App Router)
@@ -28,13 +30,19 @@ npm install
 ```bash
 cp .env.example .env.local
 ```
-3. (Optional) set `OPENAI_API_KEY` in `.env.local`.
+3. Set in `.env.local`:
+- `OPENAI_API_KEY=...`
+- `OPENAI_MODEL=gpt-4.1-mini`
+- `AUTH_SECRET=<long-random-secret>`
 4. Start dev server:
 ```bash
 npm run dev
 ```
 
 ## AI notes
-- This MVP defaults to deterministic mocked AI outputs.
-- When `OPENAI_API_KEY` is present, the risk endpoint attempts a lightweight OpenAI call.
-- Parse/score/compare are structured so you can swap mock logic for model-backed extraction/ranking later.
+- If `OPENAI_API_KEY` is missing or a model call fails, endpoints fall back to deterministic mock logic.
+- All AI endpoints (`parse`, `score`, `compare`, `risk`, `negotiate`, `qa`) attempt model-backed responses.
+
+## Auth and storage notes
+- User account and garage/history data are stored in local JSON files under `data/` for MVP use.
+- Session state is stored in an HTTP-only cookie signed with `AUTH_SECRET`.

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthPanel } from "@/components/AuthPanel";
 import { ListingInputForm } from "@/components/ListingInputForm";
 
 export default function HomePage() {
@@ -11,6 +12,7 @@ export default function HomePage() {
       </header>
 
       <ListingInputForm />
+      <AuthPanel />
 
       <footer>
         <Link href="/results" className="text-sm font-medium text-slate-700 underline underline-offset-2">Preview results page with defaults</Link>
